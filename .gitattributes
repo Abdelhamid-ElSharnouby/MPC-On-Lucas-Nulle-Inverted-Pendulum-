@@ -1,0 +1,12 @@
+# Normalize text files to LF in the repo; Windows checkouts get CRLF
+* text=auto
+*.m   text eol=crlf
+
+# MATLAB/Simulink binaries: never diff/merge as text
+*.slx binary
+*.mdl binary
+*.mat binary
+*.mlx binary
+*.fig binary
+*.slxc binary
+*.mlapp binary
