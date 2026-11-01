@@ -1,0 +1,56 @@
+16 scenarios: catch xi-0.6 v-0.25, catch xi-0.6 v0, catch xi-0.6 v+0.25, catch xi-1.2 v-0.25, catch xi-1.2 v0, catch xi-1.2 v+0.25, catch xi-1.7 v-0.25, catch xi-1.7 v0, catch xi-1.7 v+0.25, catch xi-0.6 fall, catch xi-1.2 fall, catch xi-1.7 fall, step 0-100-0, push 1.2rad/s, push 1.5rad/s, push 1.8rad/s
+
+Course LQR (sim):
+          <strong>Scenario</strong>           <strong>held</strong>     <strong>xPk_mm</strong>    <strong>phiPk_deg</strong>    <strong>tPhi1_s</strong>    <strong>tX5_s</strong>    <strong>ts5_s</strong>    <strong>ovun_mm</strong>     <strong>aRMS</strong>  
+    <strong>_____________________</strong>    <strong>_____</strong>    <strong>______</strong>    <strong>_________</strong>    <strong>_______</strong>    <strong>_____</strong>    <strong>_____</strong>    <strong>_______</strong>    <strong>_______</strong>
+
+    "catch xi-0.6 v-0.25"    true     19.523     9.8045       0.18      0.95         3       100     0.54517
+    "catch xi-0.6 v0"        true     67.648     9.7987       0.61      1.33         3       100     0.67616
+    "catch xi-0.6 v+0.25"    false    148.67     9.7929          3         3         3       100      7.2212
+    "catch xi-1.2 v-0.25"    true     28.308     9.7357       0.48      1.16         3       100     0.40294
+    "catch xi-1.2 v0"        true     113.14       9.73       0.65       1.4         3       100      1.3937
+    "catch xi-1.2 v+0.25"    false    150.94     9.7242          3         3         3       100      23.531
+    "catch xi-1.7 v-0.25"    true     66.519     9.6784        0.6      1.32         3       100      1.0559
+    "catch xi-1.7 v0"        false     150.6     9.6727          3         3         3       100      8.7262
+    "catch xi-1.7 v+0.25"    false    147.03     19.124          3         3         3       100      38.716
+    "catch xi-0.6 fall"      true     63.605     5.0025       0.49       1.2         3       100     0.83767
+    "catch xi-1.2 fall"      true     110.44     6.5883       0.58      1.32         3       100      1.6169
+    "catch xi-1.7 fall"      false    150.76     6.1802          3         3         3       100      9.6983
+    "step 0-100-0"           true     109.12     2.8543       2.99      3.72     1.125    11.858     0.46597
+    "push 1.2rad/s"          true     90.289      6.433       0.62      1.36         3       100      1.4171
+    "push 1.5rad/s"          true     148.71     12.382       1.18      1.25         3       100      2.6985
+    "push 1.8rad/s"          false    150.72     2.5316          3         3         3       100      10.972
+
+
+=== Stage 3: weights ===
+  10/120
+  20/120
+  30/120
+  40/120
+  50/120
+  60/120
+  70/120
+  80/120
+  90/120
+  100/120
+  110/120
+  120/120
+                       <strong>Config</strong>                         <strong>J</strong>                  <strong>parts_catch_step_push_aR_near</strong>               <strong>Drops</strong>     <strong>aRMS</strong>     <strong>maxQPit</strong>    <strong>memWords</strong>
+    <strong>____________________________________________</strong>    <strong>______</strong>    <strong>___________________________________________________</strong>    <strong>_____</strong>    <strong>______</strong>    <strong>_______</strong>    <strong>________</strong>
+
+    "q5000-100-1000 Ts5 Np30 blk x0.13 AW"          1.0322    0.97591     1.0496     1.0195     1.1349          0      6      1.2609      10         NaN   
+    "q5000-100-300 Ts5 Np30 blk x0.13 AW"           1.0343    0.98457     1.0399      1.009     1.1488          0      6      1.2763      11         NaN   
+    "q5000-100-3000 Ts5 Np30 blk x0.13 AW"          1.0351    0.97315     1.0591     1.0454     1.1121          0      6      1.2356      11         NaN   
+    "q5000-300-3000 Ts5 Np30 blk x0.13 AW"          1.0358    0.97095     1.0311      1.078     1.1155          0      6      1.2393      11         NaN   
+    "q5000-300-300 Ts5 Np30 blk x0.13 AW"            1.042    0.98803      1.029     1.0529     1.1376          0      6      1.2638      11         NaN   
+    "q5000-300-1000 Ts5 Np30 blk x0.13 AW"           1.044    0.99215     1.0263     1.0609     1.1306          0      6      1.2561      11         NaN   
+    "q5000-0-1000 Ts5 Np30 blk x0.13 AW"            1.0442    0.98056        1.1     1.0009     1.1436          0      6      1.2705      10         NaN   
+    "q5000-0-3000 Ts5 Np30 blk x0.13 AW"            1.0485    0.98824      1.099     1.0286     1.1126          0      6      1.2361      11         NaN   
+    "q10000-300-300 Ts5 Np30 blk x0.13 AW"          1.0507    0.96062     1.0928    0.99629     1.2408          0      6      1.3785      14         NaN   
+    "q10000-300-1000 Ts5 Np30 blk x0.13 AW"         1.0522     0.9666     1.0887     1.0006     1.2329          0      6      1.3698      10         NaN   
+    "q10000-100-1000 Ts5 Np30 blk x0.13 AW"         1.0562    0.94973     1.1443    0.97595     1.2563          0      6      1.3958      14         NaN   
+    "q5000-100-1000 Ts10 Np30 blk x0.13 v0.5 AW"    1.0567    0.97525     1.0575     1.0324     1.2329          0      6      1.3697      19         NaN   
+    "q10000-300-3000 Ts5 Np30 blk x0.13 AW"         1.0573     0.9763     1.0882     1.0149      1.217          0      6      1.3521      12         NaN   
+    "q5000-100-300 Ts10 Np30 blk x0.13 v0.5 AW"     1.0592    0.98719     1.0526     1.0207     1.2363          0      6      1.3735      19         NaN   
+    "q10000-1000-1000 Ts5 Np30 blk x0.13 AW"        1.0593    0.96416     1.0652     1.0773     1.2079          0      6       1.342      10         NaN   
+

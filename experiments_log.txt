@@ -1,0 +1,7 @@
+RUN = struct('structure',1,'weights',1,'refine',1,'robust',1,'report',1); tic
+try
+  experiments
+catch ME
+  fprintf('ERR: %s\n', ME.message); for k=1:numel(ME.stack), fprintf('%s:%d\n', ME.stack(k).name, ME.stack(k).line); end
+end
+toc; diary off

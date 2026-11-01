@@ -1,0 +1,126 @@
+16 scenarios: catch xi-0.6 v-0.25, catch xi-0.6 v0, catch xi-0.6 v+0.25, catch xi-1.2 v-0.25, catch xi-1.2 v0, catch xi-1.2 v+0.25, catch xi-1.7 v-0.25, catch xi-1.7 v0, catch xi-1.7 v+0.25, catch xi-0.6 fall, catch xi-1.2 fall, catch xi-1.7 fall, step 0-100-0, push 1.2rad/s, push 1.5rad/s, push 1.8rad/s
+
+Course LQR (sim):
+          <strong>Scenario</strong>           <strong>held</strong>     <strong>xPk_mm</strong>    <strong>phiPk_deg</strong>    <strong>tPhi1_s</strong>    <strong>tX5_s</strong>    <strong>ts5_s</strong>    <strong>ovun_mm</strong>     <strong>aRMS</strong>  
+    <strong>_____________________</strong>    <strong>_____</strong>    <strong>______</strong>    <strong>_________</strong>    <strong>_______</strong>    <strong>_____</strong>    <strong>_____</strong>    <strong>_______</strong>    <strong>_______</strong>
+
+    "catch xi-0.6 v-0.25"    true     19.523     9.8045       0.18      0.95         3       100     0.54517
+    "catch xi-0.6 v0"        true     67.648     9.7987       0.61      1.33         3       100     0.67616
+    "catch xi-0.6 v+0.25"    false    148.67     9.7929          3         3         3       100      7.2212
+    "catch xi-1.2 v-0.25"    true     28.308     9.7357       0.48      1.16         3       100     0.40294
+    "catch xi-1.2 v0"        true     113.14       9.73       0.65       1.4         3       100      1.3937
+    "catch xi-1.2 v+0.25"    false    150.94     9.7242          3         3         3       100      23.531
+    "catch xi-1.7 v-0.25"    true     66.519     9.6784        0.6      1.32         3       100      1.0559
+    "catch xi-1.7 v0"        false     150.6     9.6727          3         3         3       100      8.7262
+    "catch xi-1.7 v+0.25"    false    147.03     19.124          3         3         3       100      38.716
+    "catch xi-0.6 fall"      true     63.605     5.0025       0.49       1.2         3       100     0.83767
+    "catch xi-1.2 fall"      true     110.44     6.5883       0.58      1.32         3       100      1.6169
+    "catch xi-1.7 fall"      false    150.76     6.1802          3         3         3       100      9.6983
+    "step 0-100-0"           true     109.12     2.8543       2.99      3.72     1.125    11.858     0.46597
+    "push 1.2rad/s"          true     90.289      6.433       0.62      1.36         3       100      1.4171
+    "push 1.5rad/s"          true     148.71     12.382       1.18      1.25         3       100      2.6985
+    "push 1.8rad/s"          false    150.72     2.5316          3         3         3       100      10.972
+
+
+=== Stage 4: refine ===
+ 
+ Iteration   Func-count         f(x)         Procedure
+     0            1          1.03219         
+     1            4          1.03219         initial simplex
+     2            6          1.03189         contract outside
+     3            8          1.02849         expand
+     4            9          1.02849         reflect
+     5           11          1.02849         contract inside
+     6           13          1.02447         expand
+     7           14          1.02447         reflect
+     8           16          1.02447         contract inside
+     9           18          1.02447         contract inside
+    10           20          1.02447         contract outside
+    11           22          1.02443         reflect
+    12           24          1.02443         contract inside
+    13           25          1.02443         reflect
+    14           27          1.02443         contract inside
+    15           28          1.02443         reflect
+    16           30          1.02435         reflect
+    17           35          1.02435         shrink
+    18           37          1.02435         contract outside
+    19           39          1.02393         contract inside
+    20           40          1.02393         reflect
+ 
+Exiting: Maximum number of function evaluations has been exceeded
+         - increase MaxFunEvals option.
+         Current function value: 1.023930 
+
+  grid best  q5000-100-1000 Ts5 Np30 blk x0.13 AW  J = 1.032
+  refined    q4010-130-350 Ts5 Np30 blk x0.13 AW  J = 1.025
+
+=== Stage 5: robustness ===
+         <strong>Case</strong>                          <strong>Controller</strong>                     <strong>Drops</strong>       <strong>J</strong>   
+    <strong>_______________</strong>    <strong>___________________________________________</strong>    <strong>_____</strong>    <strong>_______</strong>
+
+    "l -20%"           "course LQR"                                     2            1
+    "l -20%"           "q4010-130-350 Ts5 Np30 blk x0.13 AW"            2      0.95852
+    "l -20%"           "q5000-100-1000 Ts5 Np40 blk x0.13 AW"           2      0.96529
+    "l -20%"           "q5000-100-1000 Ts5 Np40 blk x0.13 v0.5 AW"      2      0.96534
+    "l -20%"           "q5000-100-1000 Ts5 Np30 blk x0.13 AW"           2      0.96665
+    "l -20%"           "q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW"      2      0.96671
+    "l -20%"           "q5000-100-300 Ts5 Np30 blk x0.13 AW"            2      0.95399
+    "l +20%"           "course LQR"                                    10            1
+    "l +20%"           "q4010-130-350 Ts5 Np30 blk x0.13 AW"            9       1.0689
+    "l +20%"           "q5000-100-1000 Ts5 Np40 blk x0.13 AW"           8       1.0973
+    "l +20%"           "q5000-100-1000 Ts5 Np40 blk x0.13 v0.5 AW"      8       1.0973
+    "l +20%"           "q5000-100-1000 Ts5 Np30 blk x0.13 AW"           9       1.0979
+    "l +20%"           "q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW"      9       1.0979
+    "l +20%"           "q5000-100-300 Ts5 Np30 blk x0.13 AW"            9       1.1082
+    "offset 0.2deg"    "course LQR"                                     7            1
+    "offset 0.2deg"    "q4010-130-350 Ts5 Np30 blk x0.13 AW"            6       1.0361
+    "offset 0.2deg"    "q5000-100-1000 Ts5 Np40 blk x0.13 AW"           6       1.0472
+    "offset 0.2deg"    "q5000-100-1000 Ts5 Np40 blk x0.13 v0.5 AW"      6       1.0474
+    "offset 0.2deg"    "q5000-100-1000 Ts5 Np30 blk x0.13 AW"           6       1.0469
+    "offset 0.2deg"    "q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW"      6       1.0471
+    "offset 0.2deg"    "q5000-100-300 Ts5 Np30 blk x0.13 AW"            6       1.0534
+    "delay 10ms"       "course LQR"                                     7            1
+    "delay 10ms"       "q4010-130-350 Ts5 Np30 blk x0.13 AW"            7       1.0143
+    "delay 10ms"       "q5000-100-1000 Ts5 Np40 blk x0.13 AW"           6        2.027
+    "delay 10ms"       "q5000-100-1000 Ts5 Np40 blk x0.13 v0.5 AW"      6       2.0267
+    "delay 10ms"       "q5000-100-1000 Ts5 Np30 blk x0.13 AW"           6       1.0377
+    "delay 10ms"       "q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW"      6       1.0385
+    "delay 10ms"       "q5000-100-300 Ts5 Np30 blk x0.13 AW"            7       1.0247
+
+
+=== Stage 6: report ===
+
+FINALISTS (score J: LQR = 1, lower is better)
+     <strong>ID</strong>                        <strong>Config</strong>                         <strong>J</strong>       <strong>Jrobust</strong>    <strong>Drops</strong>    <strong>catch_xPk_mm</strong>    <strong>catch_tPhi1_s</strong>    <strong>catch_tX5_s</strong>    <strong>step_ts5_s</strong>    <strong>push_xPk_mm</strong>     <strong>aRMS</strong>     <strong>memWords</strong>    <strong>maxQPit</strong>
+    <strong>_____</strong>    <strong>___________________________________________</strong>    <strong>______</strong>    <strong>_______</strong>    <strong>_____</strong>    <strong>____________</strong>    <strong>_____________</strong>    <strong>___________</strong>    <strong>__________</strong>    <strong>___________</strong>    <strong>______</strong>    <strong>________</strong>    <strong>_______</strong>
+
+    "LQR"    "course LQR"                                        1         1       6         67.027          0.51286            1.24        1.125         148.71        1.111          0        0   
+    "F1"     "q4010-130-350 Ts5 Np30 blk x0.13 AW"          1.0248    1.0195       6         67.306          0.58714         0.97286            1         132.45       1.2345     8638.9        9   
+    "F2"     "q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW"    1.0325    1.0376       6         67.109             0.59         0.96429         0.96         133.04       1.2606     9338.3       12   
+
+
+Course-model fixes (J relative to the as-built LQR):
+         <strong>CourseModel</strong>         <strong>LQR_drops</strong>    <strong>LQR_J</strong>     <strong>F1_drops</strong>     <strong>F1_J</strong> 
+    <strong>_____________________</strong>    <strong>_________</strong>    <strong>______</strong>    <strong>________</strong>    <strong>______</strong>
+
+    "as built"                   6             2       6        1.0248
+    "v_set IC = xdot_hat"        6        2.0126       6        1.0317
+    "v_set clamp +-0.5"          6        1.0045       6        1.0248
+    "both"                       6        1.0077       6        1.0317
+
+
+---- paste into Calculations.m (Step 5), one finalist at a time ----
+% F1: q4010-130-350 Ts5 Np30 blk x0.13 AW
+cfgD = struct('Ts',0.005, 'Np',30, 'moves',[1 1 2 2 4 6 14], 'q',[4010 130 350], 'r',1, ...
+              'xLim',0.13, 'xFrom',1, 'vLim',Inf, 'ecr',1, 'du',0);
+fISR = 1000;   % anti-windup in the MPC block: 1 (1 = use MPC_D_aw block code)
+[mpcD, LcD] = buildMPC(cfgD, A, B);  Ts = cfgD.Ts;  NpD = cfgD.Np;  qD = cfgD.q;
+% est. MPC memory 8.6k words (current build 7.0k, overflow above ~12.4k)
+
+% F2: q5000-100-1000 Ts5 Np30 blk x0.13 v0.5 AW
+cfgD = struct('Ts',0.005, 'Np',30, 'moves',[1 1 2 2 4 6 14], 'q',[5000 100 1000], 'r',1, ...
+              'xLim',0.13, 'xFrom',1, 'vLim',0.5, 'ecr',1, 'du',0);
+fISR = 1000;   % anti-windup in the MPC block: 1 (1 = use MPC_D_aw block code)
+[mpcD, LcD] = buildMPC(cfgD, A, B);  Ts = cfgD.Ts;  NpD = cfgD.Np;  qD = cfgD.q;
+% est. MPC memory 9.3k words (current build 7.0k, overflow above ~12.4k)
+
