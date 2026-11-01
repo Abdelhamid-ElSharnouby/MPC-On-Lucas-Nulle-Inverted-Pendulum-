@@ -34,36 +34,40 @@ New files in the repo `MPC-On-Lucas-Nulle-Inverted-Pendulum-` (written 2026-11-0
 8. **5 catches + the 1.8 rad/s push are dropped by every controller** (cart already at speed, no reserve to lean the pendulum back within 150 mm). They only count as "holds what the LQR can't".
 9. **LQR at 1 kHz = LQR at 500 Hz** (scores identical), so changing fISR doesn't favour either controller.
 
-## 3. Finalists (simulation, nominal plant)
+## 3. Finalists (MATLAB run of `experiments.m`, confirmed by the Python replica)
 
-Structure for all: soft x limit ±0.13 m (ECR 1), no ẋ limit, MV ±10 hard, terminal cost, **anti-windup on**.
+Structure for all: blocking, soft x limit ±0.13 m (ECR 1), no ẋ limit, MV ±10 hard, terminal cost, **anti-windup on** (`MPC_D_aw.m`).
+Stage 3 (120 weight combinations) ranked q = [5000 100 1000] at Ts 5 ms / Np 30 first; Stage 4 (fminsearch) refined it to [4010 130 350] (J 1.032 → 1.025, i.e. practically equal).
 
-| | Weights q = [x v φ] | Ts / fISR | Np, blocking | Est. memory |
+| | Weights q = [x v φ] | Ts / fISR | Np, blocking | Memory (codegen, calibrated) |
 |---|---|---|---|---|
-| **F1** | [5000 100 1000] | 5 ms / **1 kHz** | 30, `[1 1 2 2 4 6 14]` | ≈ 9k words |
-| **F2** | [10000 300 1000] | 5 ms / **1 kHz** | 30, `[1 1 2 2 4 6 14]` | ≈ 9k words |
-| **F3** | [5000 100 1000] | 10 ms / 500 Hz | 30, `[1 1 1 2 3 4 8 10]` | ≈ 8.9k words |
+| **F1** | [5000 100 1000] (candidate D) | 5 ms / **1 kHz** | 30, `[1 1 2 2 4 6 14]` | **8.6k words** (now 7.0k, overflow > ~12.4k) |
+| **F2** | [4010 130 350] (refined optimum) | 5 ms / **1 kHz** | 30, `[1 1 2 2 4 6 14]` | 8.6k words |
+| **F3** (fallback) | [5000 100 1000] | 10 ms / 500 Hz | 30, `[1 1 1 2 3 4 8 10]` | 8.8k words |
 
-Memory: linear fit through the two known builds (7.0k words now; Np = 50 → 14.4k, overflowed above ≈ 12.4k). F1/F2 with Np = 40 would be ≈ 11.1k (tight); Np = 30 performs the same.
+Np = 40 at 5 ms performs the same but needs 11.1k words (too tight). Adding the ẋ ≤ 0.5 limit costs +0.7k words for nothing.
 
-| Controller | catch peak x | catch \|φ\|<1° | catch \|x\|<5 mm | step ts(5 mm) | step over+under | push 1.2 peak / settle | push 1.5 | aRMS |
-|---|---|---|---|---|---|---|---|---|
-| Course LQR | 67 mm | 0.51 s | 1.24 s | 1.12 s | 11.9 mm | 90 mm / 1.36 s | 149 mm, 1.25 s | 1.11 |
-| **F1** | 67 | 0.59 | **0.96** | **0.96** | 14.9 | 94 / **1.11** | **133 mm**, 1.72 s | 1.26 |
-| **F2** | 67 | 0.57 | **0.93** | **0.96** | 15.9 | 94 / **1.10** | **136 mm**, 1.55 s | 1.37 |
-| **F3** | 67 | 0.59 | **0.96** | **0.96** | 15.1 | 94 / **1.11** | **138 mm**, 1.77 s | 1.37 |
-| Lab MPC now (D, Nc5, no AW) | 71 | 0.56 | 0.91 | 0.98 | 14.6 | 101 / 1.03 | **drops** | 1.58 |
+| Controller | catch \|φ\|<1° | catch \|x\|<5 mm | step ts(5 mm) | step over+under | push 1.2 settle | push 1.5 peak / settle | aRMS |
+|---|---|---|---|---|---|---|---|
+| Course LQR (as built) | 0.51 s | 1.24 s | 1.12 s | 11.9 mm | 1.36 s | 149 mm / 1.25 s | 1.11 |
+| *LQR + v_set clamp ±0.5 (reference only)* | 0.52 | 1.24 | 1.12 | 11.9 | 1.36 | 136 / 1.46 | 1.02 |
+| **F1** | 0.59 | **0.96** | **0.96** | 14.9 | **1.11** | **133** / 1.72 | 1.26 |
+| **F2** | 0.59 | **0.97** | **1.00** | 13.6 | **1.12** | **132** / 1.88 | 1.23 |
+| **F3** | 0.59 | **0.96** | **0.96** | 15.1 | **1.11** | 138 / 1.77 | 1.37 |
+| Lab MPC now (D, Nc5, no AW) | 0.56 | 0.91 | 0.98 | 14.6 | 1.03 | **drops** | 1.58 |
 
-**Where the MPC wins:** x returns 20–25 % faster after catches, small pushes and steps; under a hard push it stops 11–16 mm further from the drop limit (LQR: 1 mm margin).
-**Where it loses:** φ settles ~0.07 s later, step over/undershoot +3–4 mm, 15–25 % more control activity, and after a hard push it parks at the soft limit for 0.3–0.6 s (slower return).
+**Where the MPC wins:** the cart returns about 22 % faster after catches, small pushes and steps. On a hard push it stops 13–17 mm further from the drop limit than the course LQR (LQR: 1 mm margin).
+**Honest caveat:** most of that push margin comes from the anti-windup, not from the MPC itself. The LQR with a clamped v_set also reaches 136 mm. The MPC's own contribution is the faster return and planning against the travel limit.
+**Where it loses:** φ settles ~0.08 s later, +2–3 mm step over/undershoot, 10–25 % more control activity, and after a hard push it parks at the soft limit for 0.3–0.6 s (slower return).
 **Robustness** (l ±20 %, 0.2° offset, 10 ms delay): the finalists never drop more than the LQR, and hold more in three of the four cases.
+**Course-model fixes** (Stage 6): v_set initial value = x̂_dot at the catch makes no difference; clamping v_set helps the LQR as above.
 
 ## 4. Hardware plan (lab PC, R2022a)
 
 1. Copy `buildMPC.m` next to `Calculations.m`. In Step 5 replace the hand-built `mpcD` with:
    ```matlab
    cfgD = struct('Ts',0.005,'Np',30,'moves',[1 1 2 2 4 6 14],'q',[5000 100 1000],'r',1, ...
-                 'xLim',0.13,'xFrom',1,'vLim',Inf,'ecr',1,'du',0);           % F1
+                 'xLim',0.13,'xFrom',1,'vLim',Inf,'ecr',1,'du',0);           % F1  (F2: 'q',[4010 130 350])
    fISR = 1000;                                                              % F1/F2: 1 kHz (F3: 500, Ts 0.01, Np 30, moves [1 1 1 2 3 4 8 10])
    [mpcD, LcD] = buildMPC(cfgD, A, B);  Ts = cfgD.Ts;  NpD = cfgD.Np;  qD = cfgD.q;
    [mpcCore, mpcState0, mpcOnline] = getCodeGenerationData(mpcD,'DataType','single');
@@ -72,13 +76,13 @@ Memory: linear fit through the two known builds (7.0k words now; Np = 50 → 14.
    and set the LucasNuelleHardware block's Control-Routine frequency to `fISR`. The LAB CHECK line must show `W rows=30`, the last row `[0 0 0 1 1 1 1]`, `nMPC=5`.
 2. MPC block: paste `MPC_D_aw.m`; add the parameters `Tisr` and `awOn` (Scope = Parameter, non-tunable). Outputs stay `a, qpIter, qpIterMax`.
 3. Build: watch the **linker** (`.ebss`/`.econst` in RAML4L7) and the **Processor Load** display at 1 kHz.
-4. Fallback if memory/time fails: F3 (500 Hz, nothing else changes).
+4. Fallback if memory/time fails: F3 (500 Hz, only the MPC data and block change).
 5. **Comparison protocol (same day, after homing):** Set_Pos 0→100→0, 3 taps, 3 catches. Record Balance, Pos, Phi, y1, a_MPC, a_LQR; note ξ = φ̇ + 6.68·φ for each catch. Order: LQR (useMPC = 0) → F1 → F2 → F3 → LQR again.
 6. **What to compare:** catch peak x, t(|φ| < 1°), t(|x| < 5 mm), step settling and dip, push peak x. Expected from simulation: MPC faster on x, more margin on hard pushes, slightly more φ activity.
 
 ## 5. Open points
 
-- Run `experiments.m` fully on the home PC and compare its report with the table above (the Python replica gives identical LQR numbers).
+- Done: `experiments.m` ran fully on the home PC (R2025b), about 25 min. Logs: `log_stage3.txt`, `log_stage456.txt`.
 - If F1/F2 chatter at the x limit on hardware: try `xLim 0.14`, or `du` 3–5, or an x limit on later steps only (`xFrom`).
 - Anti-windup would also help the course LQR (integrator limits ±0.5). It's a course-model change; keep the LQR as built for the comparison and mention it in the thesis.
 - Commit the new files.
