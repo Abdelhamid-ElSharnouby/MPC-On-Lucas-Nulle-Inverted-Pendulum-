@@ -1,6 +1,6 @@
 %% CalcExp.m - Calculations.m with the MPC tuned by experiments.m (2026-11-01)
 %  Differences to Calculations.m:
-%    * cand selects the finalist: "F1" (default), "F2", "F3"
+%    * finalist selects the candidate: "F1" (default), "F2", "F3"
 %    * Step 2: Ts / fISR follow the finalist (F1/F2: 5 ms, 1 kHz; F3: 10 ms, 500 Hz)
 %    * Step 5: mpcD is built by buildMPC(cfgD, A, B) (needs buildMPC.m in this folder)
 %    * Step 6: awOn = 1 for the MPC block with anti-windup (MPC_D_aw.m)
@@ -69,8 +69,8 @@ Nbar = rscale(sys_ss,K);
 % sys_ss = ss(A,B,Cn,0);
 % 
 % Nbar = rscale(sys_ss,K);
-cand = "F1";           % finalist from experiments.m: "F1" | "F2" | "F3"
-switch cand
+finalist = "F1";       % finalist from experiments.m: "F1" | "F2" | "F3"
+switch finalist
     case {"F1","F2"}
         Ts   = 0.005;  % MPC sample time [s]
         fISR = 1000;   % Control-Routine rate -> set the LucasNuelleHardware block to 1000 Hz
@@ -78,7 +78,7 @@ switch cand
         Ts   = 0.01;
         fISR = 500;    % current lab rate
     otherwise
-        error('cand must be "F1", "F2" or "F3"');
+        error('finalist must be "F1", "F2" or "F3"');
 end
 nMPC = Ts*fISR;        % ISR calls per MPC step (= 5 for all finalists)
 
@@ -258,7 +258,7 @@ end
 mpcverbosity('off');
 % Finalists of experiments.m: blocking, soft x limit +-0.13 m, no xdot limit,
 % a = +-10 hard, terminal cost, custom estimation (all inside buildMPC.m).
-switch cand
+switch finalist
     case "F1", qCand = [5000 100 1000];  mvCand = [1 1 2 2 4 6 14];      % candidate D weights
     case "F2", qCand = [4010 130 350];   mvCand = [1 1 2 2 4 6 14];      % fminsearch optimum
     case "F3", qCand = [5000 100 1000];  mvCand = [1 1 1 2 3 4 8 10];    % 500 Hz fallback
@@ -335,6 +335,6 @@ spStepTime = 3;              % Set_Pos step time [s]  (use ~12 s for a swing-up 
 spStepSize = 100;            % Set_Pos step size [mm]
 
 %% Lab check (printed every run)
-fprintf('\nLAB CHECK: cand=%s  fISR=%d  nMPC=%d  Tisr=%g  NpD=%d  W rows=%d  last row=%s  qD=%s  moves=%s  xLim=%g  data=%s  useMPC=%d  awOn=%d\n', ...
-    cand, fISR, nMPC, Tisr, mpcD.PredictionHorizon, size(mpcD.Weights.OV,1), mat2str(mpcD.Weights.OV(end,:)), ...
+fprintf('\nLAB CHECK: finalist=%s  fISR=%d  nMPC=%d  Tisr=%g  NpD=%d  W rows=%d  last row=%s  qD=%s  moves=%s  xLim=%g  data=%s  useMPC=%d  awOn=%d\n', ...
+    finalist, fISR, nMPC, Tisr, mpcD.PredictionHorizon, size(mpcD.Weights.OV,1), mat2str(mpcD.Weights.OV(end,:)), ...
     mat2str(qD), mat2str(mpcD.ControlHorizon), mpcD.OV(1).Max(end), class(mpcState0.Plant), useMPC, awOn);
