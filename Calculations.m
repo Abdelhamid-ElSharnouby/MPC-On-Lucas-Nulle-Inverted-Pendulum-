@@ -239,7 +239,7 @@ end
 %  Toolbox quirk (R2022a): setterminal changes the limits and ECRs, so it
 %  is called FIRST and all limits/ECRs are set AFTER it.
 mpcverbosity('off');
-qD  = [1000 0 1000];                        % [q_x q_v q_phi], R = 1
+qD  = [2000 0 1000];                        % [q_x q_v q_phi], R = 1
 QdD = diag([qD(1) qD(2) qD(3) 0])/90;   RdD = 1/90;
 PD  = idare(plant_d.A, plant_d.B, QdD, RdD);  % terminal cost x'*PD*x
 LcD = chol(PD);                               % LcD'*LcD = PD
@@ -258,7 +258,13 @@ mpcD.OV(1).Min = -0.15; mpcD.OV(1).Max = 0.15; mpcD.OV(1).ScaleFactor = 0.3;
 mpcD.OV(2).ScaleFactor = 0.7;
 mpcD.OV(3).Min = -0.5;  mpcD.OV(3).Max = 0.5;  mpcD.OV(3).ScaleFactor = 1;
 for k = [1 3], mpcD.OV(k).MinECR = 1; mpcD.OV(k).MaxECR = 1; end
-
+%removing limits test
+noOVlimits = false;   % TEST: remove the soft x and xdot limits, keep a = ±10 hard
+if noOVlimits
+    mpcD.OV(1).Min = -Inf; mpcD.OV(1).Max = Inf;
+    mpcD.OV(3).Min = -Inf; mpcD.OV(3).Max = Inf;
+end
+fprintf('noOVlimits = %d\n', noOVlimits);
 % weights (50 rows: steps 1..49 stage cost, step 50 terminal cost)
 mpcD.Weights.MV     = wuD;
 mpcD.Weights.MVRate = 0;
@@ -340,6 +346,6 @@ spStepTime = 3;              % Set_Pos step time [s]  (use ~12 s for a swing-up 
 spStepSize = 100;            % Set_Pos step size [mm]
 
 %% Lab check (printed every run)
-fprintf('\nLAB CHECK: fISR=%d  nMPC=%d  Tisr=%g  NpD=%d  W rows=%d  last row=%s  qD=%s  data=%s  useMPC=%d\n', ...
+fprintf('\nLAB CHECK: fISR=%d  nMPC=%d  Tisr=%g  NpD=%d  W rows=%d  last row=%s  qD=%s  xLim=%g  vLim=%g  data=%s  useMPC=%d\n', ...
     fISR, nMPC, Tisr, mpcD.PredictionHorizon, size(mpcD.Weights.OV,1), mat2str(mpcD.Weights.OV(end,:)), ...
-    mat2str(qD), class(mpcState0.Plant), useMPC);
+    mat2str(qD), mpcD.OV(1).Max, mpcD.OV(3).Max, class(mpcState0.Plant), useMPC);
