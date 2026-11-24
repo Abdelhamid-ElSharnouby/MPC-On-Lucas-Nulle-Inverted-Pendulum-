@@ -1,3 +1,10 @@
+%% Build selector: set buildID in the Command Window, then run this file:
+%     clear; buildID = "M2"; Calculations;
+%  L1 course LQR | L2 LQR q2000 | M1 MPC q1000 | M2 V1+ | M3 V1+ without speed limit
+if ~exist('buildID', 'var'), error('Set buildID first:  clear; buildID = "M2"; Calculations;'); end
+buildID = string(buildID);
+assert(any(buildID == ["L1" "L2" "M1" "M2" "M3"]), 'buildID must be L1, L2, M1, M2 or M3');
+
 %% Inverted Pendulum State Space Model
 m = 0.3;
 l = 0.165;
@@ -29,6 +36,10 @@ Cn=[1 0 0 0];
 sys_ss = ss(A,B,Cn,0);
 
 Nbar = rscale(sys_ss,K);
+if buildID == "L2"                         % equal-weight LQR baseline (MPC weights)
+    K    = lqr(A,B,diag([2000 0 1000 0]),R);
+    Nbar = rscale(sys_ss,K);               % same computation as the course LQR
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Container Control
@@ -239,7 +250,7 @@ end
 %  Toolbox quirk (R2022a): setterminal changes the limits and ECRs, so it
 %  is called FIRST and all limits/ECRs are set AFTER it.
 mpcverbosity('off');
-qD  = [2000 0 1000];                        % [q_x q_v q_phi], R = 1
+if buildID == "M1", qD = [1000 0 1000]; else, qD = [2000 0 1000]; end   % [q_x q_v q_phi], R = 1
 QdD = diag([qD(1) qD(2) qD(3) 0])/90;   RdD = 1/90;
 PD  = idare(plant_d.A, plant_d.B, QdD, RdD);  % terminal cost x'*PD*x
 LcD = chol(PD);                               % LcD'*LcD = PD
@@ -264,7 +275,11 @@ if noOVlimits
     mpcD.OV(1).Min = -Inf; mpcD.OV(1).Max = Inf;
     mpcD.OV(3).Min = -Inf; mpcD.OV(3).Max = Inf;
 end
-fprintf('noOVlimits = %d\n', noOVlimits);
+noVlim = (buildID == "M3");   % M3 ablation: remove ONLY the soft speed limit
+if noVlim
+    mpcD.OV(3).Min = -Inf; mpcD.OV(3).Max = Inf;
+end
+fprintf('noOVlimits = %d  noVlim = %d\n', noOVlimits, noVlim);
 % weights (50 rows: steps 1..49 stage cost, step 50 terminal cost)
 mpcD.Weights.MV     = wuD;
 mpcD.Weights.MVRate = 0;
@@ -341,7 +356,7 @@ fr     = 0.3;                % pendulum friction of the LN plant block
 qPos   = 0.054/16000;        % encoder resolution [m]      (3.375 um)
 qAng   = 2*pi/65535;         % CAN-angle resolution [rad]
 theta0 = pi + 1.5*pi/180;    % plant start angle: pi = upright, 0 = hanging
-useMPC = 1;                  % 1 = MPC (candidate D), 0 = course LQR (K, Nbar) in A62_MPC_Sim
+useMPC = double(startsWith(buildID, "M"));   % set by buildID: L-builds LQR drives, M-builds MPC drives
 spStepTime = 3;              % Set_Pos step time [s]  (use ~12 s for a swing-up test: catch needs |x| < 30 mm)
 spStepSize = 100;            % Set_Pos step size [mm]
 
@@ -349,3 +364,24 @@ spStepSize = 100;            % Set_Pos step size [mm]
 fprintf('\nLAB CHECK: fISR=%d  nMPC=%d  Tisr=%g  NpD=%d  W rows=%d  last row=%s  qD=%s  xLim=%g  vLim=%g  data=%s  useMPC=%d\n', ...
     fISR, nMPC, Tisr, mpcD.PredictionHorizon, size(mpcD.Weights.OV,1), mat2str(mpcD.Weights.OV(end,:)), ...
     mat2str(qD), mpcD.OV(1).Max, mpcD.OV(3).Max, class(mpcState0.Plant), useMPC);
+
+% Build ID + file fingerprints (= git blob hashes; compare with "git ls-tree <tag>" on the laptop)
+mdlName = 'A62_SwingUp_Control_MPC_scops';
+hCalc = gitBlobHash([mfilename('fullpath') '.m'], true);
+hMdl  = gitBlobHash(which([mdlName '.slx']), false);
+fprintf('BUILD %s   Calculations.m %s   %s.slx %s\n', buildID, hCalc(1:7), mdlName, hMdl(1:7));
+fprintf('K = %s   Nbar = %.4g\n', mat2str(K, 5), Nbar);
+if bdIsLoaded(mdlName) && strcmp(get_param(mdlName, 'Dirty'), 'on')
+    warning('Model has UNSAVED changes in memory - Ctrl+B would build them. Close without saving and reopen.');
+end
+
+function h = gitBlobHash(f, isText)
+% SHA-1 exactly as git computes it for a file (text: CRLF -> LF, as stored in the repo)
+fid = fopen(f, 'r');  assert(fid > 0, 'Cannot open %s', f);
+d = fread(fid, Inf, '*uint8');  fclose(fid);
+if isText, d(d == 13) = []; end
+md = java.security.MessageDigest.getInstance('SHA-1');
+md.update(typecast(uint8([sprintf('blob %d', numel(d)), 0]), 'int8'));
+md.update(typecast(d(:), 'int8'));
+h = lower(reshape(dec2hex(typecast(md.digest(), 'uint8')).', 1, []));
+end
